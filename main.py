@@ -42,6 +42,8 @@ def upload_video():
     response = session.get(url, stream = True, allow_redirects=True)
     decodedImage = response.content.decode('utf-8')
     extension = guess_extension(guess_type(decodedImage)[0])
+    if(extension == '.mp4'):
+        extension = '.avi'
     pureBase64 = decodedImage.split(',', 1)[1]
     filename =  ('%s-%s%s'%(id,secure_filename(part),extension)) 
     p = os.path.join('data/video/afterDetection', filename)
