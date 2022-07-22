@@ -9,7 +9,7 @@ import time
 import subprocess
 import requests
 from mimetypes import guess_extension, guess_type
-
+import base64
 CONFIDENCE_THRESHOLD = 0.2
 NMS_THRESHOLD = 0.4
 COLORS = [(0, 255, 255), (255, 255, 0), (0, 255, 0), (255, 0, 0)]
@@ -40,11 +40,16 @@ def upload_video():
     
     session = requests.Session()
     response = session.get(url, stream = True, allow_redirects=True)
-    extension = '.png' #guess_extension(guess_type(response.content.decode('utf-8'))[0])
-
+    decodedImage = response.content.decode('utf-8')
+    extension = guess_extension(guess_type(decodedImage)[0])
+    pureBase64 = decodedImage.split(',', 1)[1]
     filename =  ('%s-%s%s'%(id,secure_filename(part),extension)) 
     p = os.path.join('data/video/afterDetection', filename)
-    save_response_content( codecs.decode(response.content,'base64'), os.path.join(app.config['UPLOAD_FOLDER'],filename))    
+
+
+    save_response_content(base64.b64decode(pureBase64), os.path.join(app.config['UPLOAD_FOLDER'],filename))    
+    # save_response_content( codecs.decode(decodedImage,'base64'), os.path.join(app.config['UPLOAD_FOLDER'],filename))    
+
     # r = requests.get(url, allow_redirects=True)
     # typeoffile = r.headers.get('content-type')
 
@@ -64,7 +69,7 @@ def upload_video():
 
           subprocess.run(
               ['python3', 'detect.py', '--weights', './checkpoints/yolov4-416', '--size', '416', '--model', 'yolov4',
-               '--images', os.path.join(app.config['UPLOAD_FOLDER'],filename),'--part',part,'--id',id, '--output', p, '--crop', '--count'])
+               '--images', os.path.join(app.config['UPLOAD_FOLDER'],filename),'--output', p, '--crop', '--count'])
 
 
     else:
