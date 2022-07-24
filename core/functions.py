@@ -6,6 +6,12 @@ import tensorflow as tf
 import pytesseract
 from core.utils import read_class_names
 from core.config import cfg
+import requests
+import base64
+# UPLOAD_FOLDER = 'static/uploads/'
+# t = os.path.join('UPLOAD_FOLDER', 'partid.txt')
+t = 'static/uploads/partid.txt'
+
 
 # function to count objects, can return total classes or count per class
 def count_objects(data, by_class = False, allowed_classes = list(read_class_names(cfg.YOLO.CLASSES).values())):
@@ -77,7 +83,7 @@ def crop_objects(img, data, path, allowed_classes):
                 import base64
 
                 with open(img_path, "rb") as img_file:
-                    b64_string = base64.b64encode(img_file.read())
+                    b64_string = base64.b64encode(img_file.read()).decode('utf-8')
                 print("image string is = ", b64_string)
                 # l = list()
                 # l.append(str(b64_string))
@@ -93,11 +99,31 @@ def crop_objects(img, data, path, allowed_classes):
             except :
                 continue
             import json
+
+            # t = os.path.join(app.config['UPLOAD_FOLDER'],'partid.txt')
+            f = open(t, 'r')
+            n = f.readlines()
+            oo = []
+            for i in n:
+                val = i.strip().split(',')
+                oo.append(val[0])
+            # print("cooooooooooooooooooooooooooool",oo) // 
+
             columns = {
-                'data_columns': [i for i in l]
+                'data_columns': [i for i in l],
+                'part-id': [j for j in oo]
+
             }
+            try:
+                r = requests.post('http://localhost:3003/crop', json={'data':l[0],'id':oo[0],'part':oo[1]},cookies={'access_token':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im5lY2RldEBhY3RpbWkuY29tIiwic3ViIjoiYzFiNGQ2NmMtN2VhMC00YTBlLTlkMDQtMjBhOTEwMTJmZjcxIiwicm9sZXMiOlsiUGF0aWVudCJdLCJvcmdhbml6YXRpb24iOiIwMmI4ZTk2NS1hMGQzLTQyMDAtYTRiNi01YjYyMTUyNmZhMjIiLCJuYW1lIjoieWlnaXQgZXJvZ2x1IiwicnVsZXMiOltbInJlYWQsdXBkYXRlLGRlbGV0ZSxzZWFyY2giLCJwYXRpZW50Il0sWyJyZWFkLHNlYXJjaCIsInByYWN0aXRpb25lciJdLFsiY3JlYXRlLHJlYWQsc2VhcmNoLGRlbGV0ZSIsIm9ic2VydmF0aW9uIix7InN1YmplY3QiOiJjMWI0ZDY2Yy03ZWEwLTRhMGUtOWQwNC0yMGE5MTAxMmZmNzEifV0sWyJjcmVhdGUscmVhZCx1cGRhdGUsZGVsZXRlLHNlYXJjaCIsInRyYWluaW5nU2NoZWR1bGVzIl0sWyJjcmVhdGUscmVhZCxzZWFyY2gsdXBkYXRlLGRlbGV0ZSIsIm1lZGljYXRpb25SZXF1ZXN0Il0sWyJjcmVhdGUscmVhZCx1cGRhdGUsZGVsZXRlLHNlYXJjaCIsIm1lZGljYXRpb24iXSxbImNyZWF0ZSxyZWFkLHNlYXJjaCIsInF1ZXN0aW9ubmFpcmUiXSxbImNyZWF0ZSxyZWFkLHNlYXJjaCIsInF1ZXN0aW9ubmFpcmVSZXNwb25zZSJdLFsiY3JlYXRlLHJlYWQsc2VhcmNoIiwicmVzZWFyY2hTdHVkeSJdLFsiY3JlYXRlLHJlYWQsdXBkYXRlLHNlYXJjaCIsIm1lc3NhZ2VzIl0sWyJjcmVhdGUscmVhZCxzZWFyY2giLCJsaW1pdFZhbHVlcyJdLFsicmVhZCxzZWFyY2giLCJ0cmFpbmluZ1Rvb2xzIl0sWyJ1cGRhdGUsY3JlYXRlLHJlYWQsc2VhcmNoIiwidHJhaW5pbmdUb29sc093bmVyc2hpcCJdLFsiY3JlYXRlLHJlYWQsdXBkYXRlLGRlbGV0ZSxzZWFyY2giLCJmaWxlU3lzdGVtIl1dLCJpYXQiOjE2NTgxODAyMjYsImV4cCI6MTY4OTczNzgyNiwiaXNzIjoiaHR0cHM6Ly9hY3RpbWktc3RyYXBpLmhlcm9rdWFwcC5jb20ifQ.yaOFa-O3fy3fLfC9GFkxVvF-xg_6Hy78rgGUK5R2rno', 'Expires':'Mon, 25 Jul 2022 21:37:06 GMT'})
+            except:
+                print("An exception occurred")
+                # e.decode("UTF-8")
+                
+            # hne najoutie l post request to backend
             with open(file_path, 'w') as jsonfile:
                 json.dump(columns, jsonfile)
+            print('should be here coloumnssssssssssssssssssssssss ',columns)
 
         else:
             continue
@@ -128,3 +154,4 @@ def ocr(img, data):
             print("Class: {}, Text Extracted: {}".format(class_name, text))
         except: 
             text = None
+

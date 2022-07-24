@@ -277,6 +277,7 @@ def draw_bbox(image, bboxes, info = False, counted_classes = None, show_label=Tr
             #                 cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (0, 255, 0), 2)
             #         offset += height_ratio
             frame = counted_classes
+        try :
             if frame != None:
                 height_ratio = int(image_h / 25)
                 offset = 15
@@ -289,7 +290,8 @@ def draw_bbox(image, bboxes, info = False, counted_classes = None, show_label=Tr
                         cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (0, 255, 0), 2)
                     frame = 0
                 offset += height_ratio
-
+        except :
+            "continue"
 
 
     return image

@@ -39,6 +39,7 @@ flags.DEFINE_boolean('info', False, 'print info on detections')
 flags.DEFINE_boolean('crop', False, 'crop detections from images')
 flags.DEFINE_boolean('plate', False, 'perform license plate recognition')
 
+
 def main(_argv):
     config = tf.compat.v1.ConfigProto()
     config.gpu_options.allow_growth = True
@@ -138,7 +139,7 @@ def main(_argv):
 
         # if crop flag is enabled, crop each detection and save it as new image
         if FLAGS.crop:
-            crop_rate = 30 # capture images every so many frames (ex. crop photos every 150 frames)
+            crop_rate = 20 # capture images every so many frames (ex. crop photos every 150 frames)
             crop_path = os.path.join(os.getcwd(), 'detections', 'crop', video_name)
             try:
                 os.mkdir(crop_path)
@@ -151,7 +152,7 @@ def main(_argv):
                     os.mkdir(final_path)
                 except FileExistsError:
                     pass          
-                crop_objects(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB), pred_bbox, final_path, allowed_classes)
+                crop_objects(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB), pred_bbox, final_path, allowed_classes )
 
             else:
                 pass
